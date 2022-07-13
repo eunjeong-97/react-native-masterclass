@@ -1,0 +1,11 @@
+{
+  "expo": {
+    "name": "react-native-masterclass",
+    "slug": "react-native-masterclass",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  },
+  "name": "react-native-masterclass"
+}
