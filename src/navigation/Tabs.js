@@ -1,33 +1,41 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Text } from 'react-native';
+import { useColorScheme } from 'react-native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { Ionicons } from '@expo/vector-icons';
+import colors from '../settings/color'
 
 import Movies from '../screen/Movies'
 import Tv from '../screen/Tv'
 import Search from '../screen/Search'
 
-// react navigation은 기본적으로 리액트컴포넌트로서 props, 설정 object에 기초하고 있다
-
 const Tab = createBottomTabNavigator();
 
 const Tabs = () => {
+    const isDark = useColorScheme() === 'dark';
     return (
-        // 처음으로 보여주는 화면을 Movies로 설정
-        // screenOPtions prop을 Tab.navigator 안에서 사용해야 한다
-        // 만약 아이콘의 색상을 변경하려고 하면 Tab.navigator 안에서 screenOptions을 사용해서 모든 tabs의 색상을 변경하면된다
-        // 만약 모든 탭의 스타일을 변경하고 싶은게 아니라 메뉴별로 다르게 설정하고 싶다면 각 screen에 options prop을 사용하면 된다
-        // 그래서 screensOprions은 모든 screen에 대한 옵션이고 options은 각 screen에 대한 것이다
-        // https://reactnavigation.org/docs/bottom-tab-navigator 공식문서 참고해서 활용해봄
-        // headerRight는 React Element를 리턴하는 함수인데 리턴되는 요소는 header 우측에 배치될 것이다 (아이콘을 설정해도 괜찮을것같다)
-        <Tab.Navigator initialRouteName="Movies" screenOptions={{ tabBarLabelStyle: { backgroundColor: 'red' }, tabBarLabelPosition: 'beside-icon', tabBarActiveTintColor: 'black', headerTitleStyle: { color: 'tomato' }, headerTitleAlign: 'center', headerRight: () => <View><Text>Hello</Text></View> }}>
-            <Tab.Screen name='Movies' component={Movies} />
-            {/* tabBarBadge은 빨간색벳지 안에 적힐 문구 설정가능 */}
-            <Tab.Screen name='Tv' component={Tv} options={{ tabBarLabelStyle: { backgroundColor: 'teal' }, tabBarBadge: 5 }} />
-            <Tab.Screen name='Search' component={Search} />
-        </Tab.Navigator>
+        // 직접 스타일지정하면 시간이 오래걸리기 때문에 NavigationContainer에서 theme을 설정하는게 더 빠를것같다
+        <Tab.Navigator initialRouteName="Movies" screenOptions={{ tabBarStyle: { backgroundColor: isDark ? colors.DARK_GRAY : colors.WHITE }, tabBarActiveTintColor: colors.BURBPLE_LIGHT, tabBarLabelStyle: { fontSize: 13, fontWeight: '600', }, tabBarInactiveTintColor: isDark ? colors.WHITE_GRAY : '#778ca3', headerStyle: { backgroundColor: isDark ? colors.DARK_GRAY : colors.WHITE }, headerTitleStyle: { color: colors.BURBPLE_LIGHT } }}>
+            {/* <Tab.Navigator initialRouteName="Movies" > */}
+            <Tab.Screen name='Movies' component={Movies} options={{
+                tabBarIcon: ({ focused, color, size }) => <Ionicons name='film' color={color} size={size} />
+            }} />
+            {/* tabBarBadge은 빨간 색벳지 안에 적힐 문구 설정가능 */}
+            < Tab.Screen name='Tv' component={Tv} options={{
+                tabBarIcon: ({ focused, color, size }) => <Ionicons name='tv' color={color} size={size} />
+            }} />
+            <Tab.Screen name='Search' component={Search} options={{
+                tabBarIcon: ({ focused, color, size }) => <Ionicons name='search' color={color} size={size} />
+            }} />
+        </Tab.Navigator >
     )
 }
 
 export default Tabs;
 
-// screenOptions은 navigator 말 그대로 모든 screen에 적용할 설정이다
-// options은 navigator의 단 하나의 화면에 적용할 설정이다
+// dark모드여부를 확인하는 방법
+// 유저의 모드에 따라 스타일을 적용시킬 수 잇다
+// color scheme을 가져오는 useColorScheme hook이 있고 Appearance module이 잇다
+// Appearance module에는 몇몇 function과 method를 제공하는데 getColorScheme() 등의 이해가 쉬운 메서드가 있다
+// 그리고 addChangeListener() 라는 이벤트리스너가 있는데 어떤 변화가 있는지 검사할 수 있다
+
+// 그 중에서 우리는 useColorScheme을 사용할건데 다크모드인지 확인해주고 업데이트되는지의 여부도 확인해준다
+// 또한 iOS 시뮬레이터에서 다크모드와 라이트모드를 빠르게 바꿀 수 잇는 shortcut이 잇다
