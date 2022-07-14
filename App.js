@@ -5,8 +5,6 @@ import Root from './src/navigation/Root';
 import { darkTheme, lightTheme } from './src/settings/styled';
 
 export default function App() {
-  // 중요한 색상은 darkTheme과 lightTheme에 포함되어있기 때문에
-  // ThemeProvider에서 한번만 useColorScheme() hook을 사용해도 된다
   const isDark = useColorScheme() === 'dark';
   return (
     <ThemeProvider theme={isDark ? darkTheme : lightTheme}>
