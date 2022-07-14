@@ -1,9 +1,10 @@
+// https://flatuicolors.com/palette/au
 const colors = {
-    BURBPLE_LIGHT: '#8854d0',
-    WHITE_GRAY: '#d1d8e0',
-    DARK_GRAY: '#4b6584',
-    BLACK: '#2D2D2D',
-    WHITE: '#FFFFFF',
-}
+  WHITE: "#dff9fb",
+  WHITE_GRAY: "#d1d8e0",
+  DARK_GRAY: "#130f40",
+  BLACK: "#2D2D2D",
+  BURBPLE_LIGHT: "#be2edd",
+};
 
 export default colors;

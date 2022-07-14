@@ -1,23 +1,24 @@
 import React from "react";
+import type { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { View, Text, TouchableOpacity } from "react-native";
 import styled from "styled-components/native";
 
-const ScreenOne = ({ navigation: { navigate } }) => (
+const ScreenOne: React.FC<NativeStackScreenProps<any, "One">> = ({ navigation: { navigate } }) => (
   <TouchableOpacity onPress={() => navigate("Two")}>
     <View>
       <Text>Go to Two</Text>
     </View>
   </TouchableOpacity>
 );
-const ScreenTwo = ({ navigation: { navigate } }) => (
+const ScreenTwo: React.FC<NativeStackScreenProps<any, "Two">> = ({ navigation: { navigate } }) => (
   <TouchableOpacity onPress={() => navigate("Three")}>
     <View>
       <Text>Go to Three</Text>
     </View>
   </TouchableOpacity>
 );
-const ScreenThree = ({ navigation: { goBack, setOptions } }) => (
+const ScreenThree: React.FC<NativeStackScreenProps<any, "Three">> = ({ navigation: { goBack, setOptions } }) => (
   <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
     <TouchableOpacity onPress={() => goBack()}>
       <View>
@@ -49,7 +50,6 @@ const Button = styled.View`
   height: 40px;
 `;
 const ButtonText = styled.Text`
-  /* styled.js에서 어떤 속성이 잇는지 확인하면서 복붙하는 문제를 해결하기 위해 types를 declare(선언)하기만 하는 declaration파일을 생성한다 */
   color: ${(props) => props.theme.mainBgColor};
 `;
 
