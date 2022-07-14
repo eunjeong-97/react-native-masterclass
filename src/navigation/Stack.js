@@ -46,6 +46,3 @@ const styles = StyleSheet.create({
         color: 'white'
     }
 });
-
-// 인스타그램은 Tab Navigation을 기반으로 만들었다
-// 하지만 만약 내가 누군가의 Profile을 누르면 Tab안에 있는 Stack Navigation이다 
