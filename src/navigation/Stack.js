@@ -23,7 +23,6 @@ const ScreenThree = ({ navigation: { goBack, setOptions } }) => (
             <Button>
                 <ButtonText selected={false}>Change Title</ButtonText>
             </Button>
-            {/* <View style={styles.button}><Text style={styles.buttonText}>Change Title</Text></View> */}
         </TouchableOpacity>
     </View>
 )
@@ -38,7 +37,6 @@ const Stack = () => (
 );
 
 
-// 여기서만 적는 View나 Text는 react-native에서 따로 import하지 않아도 된다
 const Button = styled.View`
     background-color:#54a0ff;
     justify-content:center;
@@ -49,24 +47,5 @@ const Button = styled.View`
 const ButtonText = styled.Text`
     color: ${props => props.selected ? 'red' : "white"};
 `
-
-// 자동완성은 되지 않지만 이렇게 import하지 않은 컴포넌트도 사용가능
-const Test = styled.TouchableWithoutFeedback``;
-
-// const styles = StyleSheet.create({
-//     button: {
-//         backgroundColor: '#54a0ff',
-//         color: 'white',
-//         justifyContent: 'center',
-//         alignItems: 'center',
-//         width: 100,
-//         height: 40
-//     },
-//     buttonText: {
-//         color: 'white'
-//     }
-// });
-
-// styled-components는 css코드를 native component가 써도 스타일 적용을 해준다
 
 export default Stack;
