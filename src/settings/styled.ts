@@ -5,7 +5,7 @@ export const lightTheme: DefaultTheme = {
   mainBgColor: colors.WHITE,
   textColor: colors.BLACK,
 };
-export const darkTheme = {
-  mainBgColor: colors.DARK_GRAY,
+export const darkTheme: DefaultTheme = {
+  mainBgColor: colors.BLACK,
   textColor: colors.WHITE,
 };

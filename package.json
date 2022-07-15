@@ -30,7 +30,8 @@
     "react-native-screens": "~3.11.1",
     "react-native-web": "^0.13.12",
     "react-native-web-swiper": "^2.2.1",
-    "styled-components": "^5.3.5"
+    "styled-components": "^5.3.5",
+    "expo-blur": "~11.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",

@@ -1,15 +1,15 @@
 import React from "react";
-import { useColorScheme } from "react-native";
-import { NavigationContainer, ThemeProvider } from "@react-navigation/native";
+import { NavigationContainer } from "@react-navigation/native";
 import Root from "./src/navigation/Root";
 import { darkTheme } from "./src/settings/styled";
+import { ThemeProvider } from "styled-components";
 
 export default function App() {
   return (
-    <ThemeProvider theme={darkTheme}>
-      <NavigationContainer>
+    <NavigationContainer>
+      <ThemeProvider theme={darkTheme}>
         <Root />
-      </NavigationContainer>
-    </ThemeProvider>
+      </ThemeProvider>
+    </NavigationContainer>
   );
 }
