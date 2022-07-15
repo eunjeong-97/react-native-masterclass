@@ -50,7 +50,7 @@ const Button = styled.View`
   height: 40px;
 `;
 const ButtonText = styled.Text`
-  /* color: ${(props) => props.theme.mainBgColor}; */
+  color: ${(props) => props.theme.mainBgColor};
 `;
 
 export default Stack;
