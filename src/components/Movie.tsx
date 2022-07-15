@@ -7,7 +7,7 @@ interface IMovieProps {
   posterPath: string;
   title: string;
   voteAverage?: number;
-  wrapperStyle?: any; // 스타일object
+  wrapperStyle?: any;
   direction?: "row" | "column";
   overview?: string;
   textWrapSize?: number;
