@@ -60,8 +60,6 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   }, []);
 
   const onRefresh = async () => {
-    // setRefreshing에 true를 전달하고
-    // getDate를 기다릴거다
     setRefresh(true);
     await getData();
     setRefresh(false);
@@ -121,6 +119,21 @@ const TrendingScroll = styled.ScrollView`
 
 export default Movies;
 
-// ScrollView는 refreshControl 이라는 prop을 가지고 있어서 RefreshControl 컴포넌트를 넘겨줘야한다
-// RefreshControl 컴포넌트는 refreshing이라는 boolean값으로 새로고침 중인지의 여부를 의미한다
-// onRefresh는 유저가 새로고침을 했을대 어떤일이 일어나게 할건지 설정한다
+// ScrollView는 어플리케이션의 퍼포먼스에 좋지 않아서 어플을 느리게 할 수도 있다
+// 왜냐하면 스크롤뷰는 모든 자식 컴포넌트를 한번에 render하기 때문이다
+// 즉 어플을 새로고침햇을때 ScrollView의 첫번째 자식컴포넌트도 렌더되는 건 당연하고 스크롤하지 않아서 아직 보이지 않을 마지막 요소까지 렌더가 된다
+// 그래서 엄청 많은 데이터를 보여주고 싶을때에는 스크롤뷰를 사용하면 안된다는 거다
+// 유저들은 항상 맨 끝까지 스크롤하지 않기 때문에 굳이 한번에 모든 걸 render할 필요가 없다
+
+// 이러한 문제를 해결하기 위해 FlatList 컴포넌트가 나왓는데, 자식요소들을 게으르게 render한다
+// 즉 컴포넌트가 화면에 나타나기 직전에야 컴포넌트를 render한다는 뜻이다
+// 이러한 현상을 lazy render라고 하는데 모든 걸 한번에 render하지 않고 화면에 나타나기 직전에 한다
+// 그래서 아주 빠르고 퍼포먼스가 좋아지게 된다
+
+// 또한 FlatList에서는 ScrollView처럼 map을 하지 않아도 된다
+// FlatList는 리스트를 렌더링하기 위한 performance interface이다
+
+// 추가로, SectionList는 종종 어플리케이션을 만들 때 필요할만한걸 가지고 있다
+
+// 정리: 왜 FlatList를 사용하는가?
+// 아주 많은 양의 데이터를 render할 때 좋은 퍼포먼스를 내기위해 사용한다
