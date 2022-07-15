@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ActivityIndicator, Dimensions, ScrollView } from "react-native";
+import { ActivityIndicator, Dimensions } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
 import Slide from "../components/Slide";
-import Poster from "../components/Poster";
 import Movie from "../components/Movie";
 
 interface IMovies {
@@ -30,7 +29,7 @@ const NOW_PLAYING_URL = `https://api.themoviedb.org/3/movie/now_playing?api_key=
 const TRENDING_URL = `https://api.themoviedb.org/3/trending/movie/week?api_key=${API_KEY}`;
 const UPCOMING_URL = `https://api.themoviedb.org/3/movie/upcoming?api_key=${API_KEY}&language=en-US&page=1&region=KR`;
 
-const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = (prop) => {
+const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const [loading, setLoading] = useState(true);
   const [nowPlayingMovies, setNowPlayingMovies] = useState<IMovies[]>([]);
   const [upcoming, setUpcoming] = useState<IMovies[]>([]);
@@ -51,7 +50,6 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = (prop) => {
       setUpcoming(results);
     };
     const getData = async () => {
-      // 세가지 작업을 모두해야 setLoading(false)함
       await Promise.all([getNowPlaying(), getTrending(), getUpcoming()]);
       setLoading(false);
     };
@@ -71,13 +69,20 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = (prop) => {
           return movie.vote_average > 0 ? <Slide key={movie.id} id={movie.id} backdropPath={movie.backdrop_path} posterPath={movie.poster_path} originalTitle={movie.original_title} voteAverage={movie.vote_average} overview={movie.overview} /> : null;
         })}
       </Swiper>
-      <ListTitle>Trending Movies</ListTitle>
-      {/* ScrollView에 style속성에 스타일을 주게 되면 스크롤할때 이상하게 되기 때문에 직접 스타일을 주기 보다는 contentContainerStyle이라는 prop에 스타일을 적용하면 된다 */}
-      <TrendingScroll horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingLeft: 30 }}>
-        {trending.map((movie) => (
-          <Movie key={movie.id} posterPath={movie.poster_path} title={movie.original_title} voteAverage={movie.vote_average} />
+      <ListWrap>
+        <ListTitle>Trending Movies</ListTitle>
+        <TrendingScroll horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 30 }}>
+          {trending.map((movie) => (
+            <Movie key={movie.id} posterPath={movie.poster_path} title={movie.original_title} voteAverage={movie.vote_average} wrapperStyle={{ marginLeft: 10 }} />
+          ))}
+        </TrendingScroll>
+      </ListWrap>
+      <ListWrap>
+        <ListTitle>Comming Soon</ListTitle>
+        {upcoming.map((movie) => (
+          <Movie key={movie.id} posterPath={movie.poster_path} title={movie.original_title} direction="row" overview={movie.overview} wrapperStyle={{ paddingHorizontal: 30, paddingTop: 15 }} textWrapSize={60} date={movie.release_date} />
         ))}
-      </TrendingScroll>
+      </ListWrap>
     </Container>
   );
 };
@@ -90,6 +95,10 @@ const Loading = styled.View`
   justify-content: center;
 `;
 
+const ListWrap = styled.View`
+  margin-bottom: 40px;
+`;
+
 const ListTitle = styled.Text`
   color: ${(props) => props.theme.textColor};
   font-size: 16px;
@@ -100,5 +109,12 @@ const ListTitle = styled.Text`
 const TrendingScroll = styled.ScrollView`
   margin-top: 20px;
 `;
+
+const HMovies = styled.View`
+  padding: 0 30px;
+  flex-direction: row;
+`;
+
+const HColumns = styled.View``;
 
 export default Movies;
