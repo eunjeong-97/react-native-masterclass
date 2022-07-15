@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ActivityIndicator, Dimensions, RefreshControl } from "react-native";
+import { ActivityIndicator, Dimensions, RefreshControl, FlatList, View } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
 import Slide from "../components/Slide";
@@ -78,17 +78,71 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
       </Swiper>
       <ListWrap>
         <ListTitle>Trending Movies</ListTitle>
-        <TrendingScroll horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 30 }}>
+        {/* <TrendingScroll horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingHorizontal: 30 }}>
           {trending.map((movie) => (
             <Movie key={movie.id} posterPath={movie.poster_path} title={movie.original_title} voteAverage={movie.vote_average} wrapperStyle={{ marginLeft: 10 }} />
           ))}
-        </TrendingScroll>
+        </TrendingScroll> */}
+        {/*renderItem에서 item은 배열 형태의 data에서 각각의 요소를 가리킨다
+          VirtualizedList는 같은 방향의 ScrollView 안에 감싸져있으면 안된다
+          즉 수직방향의 FlatList를 수직방향의 ScrollView 안에 넣을 수 없다는 뜻이다 
+          그리고 모든 속성을 받기 때문에 ScrollView에서 사용하던 prop을 사용할수도 잇다
+        */}
+        <FlatList
+          data={trending}
+          style={{ marginTop: 15 }}
+          ItemSeparatorComponent={() => <View style={{ width: 15 }} />}
+          renderItem={({ item }) => (
+            <Movie
+              posterPath={item.poster_path}
+              title={item.original_title}
+              voteAverage={item.vote_average}
+              //  wrapperStyle={{ marginLeft: 10 }}
+            />
+          )}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={{ paddingHorizontal: 30 }}
+        />
       </ListWrap>
       <ListWrap>
         <ListTitle>Comming Soon</ListTitle>
-        {upcoming.map((movie) => (
+        {/* {upcoming.map((movie) => (
           <Movie key={movie.id} posterPath={movie.poster_path} title={movie.original_title} direction="row" overview={movie.overview} wrapperStyle={{ paddingHorizontal: 30, paddingTop: 15 }} textWrapSize={60} date={movie.release_date} />
-        ))}
+        ))} */}
+        {/*
+        지금은 Movie컴포넌트 자체에서 marginTop:15를 주긴 했지만 Movie 컴포넌트 자체가 간격을 가지는 것이 아니라 리스트로 존재할때 간격이 15가 필요한 것이기 때문에 Movie에 간격을 지정하는것이 아니라 FlatList에서 item 사이에는 간격 15px을 render해야한다는걸 알아야 한다
+      
+        ScrollView는 이렇게 지정하는 것이 없기 때문에 margin을 통해 수동으로 각각의 컴포넌트를 밀어줬지만 
+        FlatList에서는 우리가 seperator를 render할 수 잇게 해줫다
+        ✨ 컴포넌트를 만들어서 style을 입힐때에는 어떤 속성이 정말 이 컴포넌트에 필요한지 어떤 속성이 외부 레이아웃에 필요한건지 구분해야 한다
+
+        따라서 FlatList에서 seperator를 render하도록 만든 속성이 ItemSeparatorComponent이다 
+        ItemSeparatorComponent는 item 사이사이에 컴포넌트들을 render해준다
+        그리고 FlatList에서 맨 끝에 존재하는요소에는 ItemSeparatorComponent를 넣지 않는다
+        */}
+        <FlatList
+          data={upcoming}
+          /* 숫자타입의 virtualizedCell.cellkey는 안된다는 에러가 발생하는 이유는
+          ReactJS에서 map으로 여러 요소를 render하면 key가 있어야 하는데 FlatList에서는 어떤걸 key로 할지 지정을 못하기 때문이다
+          그래서 각각의 renderItem에 어떤 key를 넣어줘야하는지 FlatList에게 알려주는 속성으로     keyExtractor에 함수를 전달하면 된다 
+          이 함수는 리스트의 item을 받아와서 item의 어떤부분을 key로 삼을건지 반환해주면된다
+          */
+          keyExtractor={(item) => item.id + ""}
+          ItemSeparatorComponent={() => <View style={{ height: 15 }} />}
+          renderItem={({ item }) => (
+            <Movie
+              posterPath={item.poster_path}
+              title={item.original_title}
+              direction="row"
+              overview={item.overview}
+              wrapperStyle={{ paddingHorizontal: 30 }}
+              textWrapSize={60}
+              date={item.release_date}
+              // wrapperStyle={{ paddingHorizontal: 30, paddingTop:15 }}
+            />
+          )}
+        />
       </ListWrap>
     </Container>
   );
@@ -113,27 +167,8 @@ const ListTitle = styled.Text`
   margin-left: 20px;
 `;
 
-const TrendingScroll = styled.ScrollView`
-  margin-top: 20px;
-`;
+// const TrendingScroll = styled.FlatList`
+//   margin-top: 15px;
+// `;
 
 export default Movies;
-
-// ScrollView는 어플리케이션의 퍼포먼스에 좋지 않아서 어플을 느리게 할 수도 있다
-// 왜냐하면 스크롤뷰는 모든 자식 컴포넌트를 한번에 render하기 때문이다
-// 즉 어플을 새로고침햇을때 ScrollView의 첫번째 자식컴포넌트도 렌더되는 건 당연하고 스크롤하지 않아서 아직 보이지 않을 마지막 요소까지 렌더가 된다
-// 그래서 엄청 많은 데이터를 보여주고 싶을때에는 스크롤뷰를 사용하면 안된다는 거다
-// 유저들은 항상 맨 끝까지 스크롤하지 않기 때문에 굳이 한번에 모든 걸 render할 필요가 없다
-
-// 이러한 문제를 해결하기 위해 FlatList 컴포넌트가 나왓는데, 자식요소들을 게으르게 render한다
-// 즉 컴포넌트가 화면에 나타나기 직전에야 컴포넌트를 render한다는 뜻이다
-// 이러한 현상을 lazy render라고 하는데 모든 걸 한번에 render하지 않고 화면에 나타나기 직전에 한다
-// 그래서 아주 빠르고 퍼포먼스가 좋아지게 된다
-
-// 또한 FlatList에서는 ScrollView처럼 map을 하지 않아도 된다
-// FlatList는 리스트를 렌더링하기 위한 performance interface이다
-
-// 추가로, SectionList는 종종 어플리케이션을 만들 때 필요할만한걸 가지고 있다
-
-// 정리: 왜 FlatList를 사용하는가?
-// 아주 많은 양의 데이터를 render할 때 좋은 퍼포먼스를 내기위해 사용한다
