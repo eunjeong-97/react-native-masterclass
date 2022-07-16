@@ -3,7 +3,7 @@ import styled from "styled-components/native";
 import { StyleSheet } from "react-native";
 import { BlurView } from "expo-blur";
 
-import { makeImgPath } from "../utils";
+import makeImgPath from "../utils/makeImgPath";
 import Movie from "./Movie";
 
 interface ISlideProp {
