@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
-import { useQuery } from "react-query";
+import { useQuery, useQueryClient } from "react-query";
 
 import Slide from "../components/Slide";
 import Movie from "../components/Movie";
@@ -35,46 +35,29 @@ interface IMovies {
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
 const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
-  const {isLoading: nowPlayingIsLoading, data:nowPlayingData} = useQuery('nowPlaying', movies.nowplaying);
-  const {isLoading: trendingIsLoading, data:trendingData} = useQuery('trending', movies.trending);
-  const {isLoading: upcomingIsLoading, data:upcomingData} = useQuery('upcoming', movies.upcoming);
+  // queryClient는 모든 cache를 관리한다
+  // movies컴포넌트에서 cache된 쿼리에 접근하기 위해 useQueryClient 함수를 사용해서 queryClient를 정의했다
+  // 이러한 queryClient 덕분에 다른 스크린들에 버튼을 만들 수도 있고 그 다른 스크린들이 또 다른 곳에 있는 다른 쿼리를 refetch할 수도 있다
+  // 이게 가능한 이유는 모든 쿼리와 cache를 관리하는 queryClient를 사용했기 때문이다
+  // useQuery hook에서 온 refetch를 사용해도 되지만 만약 다른 스크린의 쿼리를 refetch할 때에는 queryClient를 활용해서 client에 접속해서 내가 월하는 refetch를 명령해야 한다
+  const queryClient = useQueryClient();
+  const {isLoading: nowPlayingIsLoading, data:nowPlayingData, refetch:nowPlayingRefetch,isRefetching:nowPlayingIsRefetching} = useQuery(['movies', 'nowPlaying'], movies.nowplaying);
+  const {isLoading: trendingIsLoading, data:trendingData, refetch:trendingRefetch,isRefetching:trendingIsRefetching} = useQuery(['movies','trending'], movies.trending);
+  const {isLoading: upcomingIsLoading, data:upcomingData, refetch:upcomingRefetch,isRefetching:upcomingIsRefetching} = useQuery(['movies','upcoming'], movies.upcoming);
   const [refresh, setRefresh] = useState(false);
-  // const [loading, setLoading] = useState(true);
-  // const [nowPlayingMovies, setNowPlayingMovies] = useState<IMovies[]>([]);
-  // const [upcoming, setUpcoming] = useState<IMovies[]>([]);
-  // const [trending, setTrending] = useState<IMovies[]>([]);
-
-  // const getNowPlaying = async () => {
-  //   const { results } = await (await fetch(NOW_PLAYING_URL)).json();
-  //   setNowPlayingMovies(results);
-  // };
-  // const getTrending = async () => {
-  //   const { results } = await (await fetch(TRENDING_URL)).json();
-  //   setTrending(results);
-  // };
-
-  // const getUpcoming = async () => {
-  //   const { results } = await (await fetch(UPCOMING_URL)).json();
-  //   setUpcoming(results);
-  // };
-  // const getData = async () => {
-  //   await Promise.all([getNowPlaying(), getTrending(), getUpcoming()]);
-  //   setLoading(false);
-  // };
-
-  // useEffect(() => {
-  //   getData();
-  //   return () => console.log("useEffect return");
-  // }, []);
-
-  // const onRefresh = async () => {
-  //   setRefresh(true);
-  //   await getData();
-  //   setRefresh(false);
-  // };
 
   const loading = nowPlayingIsLoading ||trendingIsLoading ||upcomingIsLoading;
-  const onRefresh = async()=>""
+  const refreshing = nowPlayingIsRefetching ||trendingIsRefetching ||upcomingIsRefetching;
+
+  const onRefresh = async()=>{
+    // query를 refetch한다
+    // nowPlayingRefetch()
+    // trendingRefetch()
+    // upcomingRefetch()
+
+    // movies키를 가진 쿼리들을 전부 refetch한다
+    queryClient.refetchQueries(['movies'])
+  }
 
   const renderTrendingItem = ({ item }) => (
     <Movie
@@ -108,7 +91,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
       keyExtractor={makeKeyExtractor}
       ItemSeparatorComponent={VerticalSeperator}
       renderItem={renderCommingItem}
-      refreshing={refresh}
+      refreshing={refreshing}
       onRefresh={onRefresh}
       ListHeaderComponent={() => (
         <>
@@ -144,6 +127,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
             <FlatList
               horizontal
               data={trendingData.results}
+              refreshing={refreshing}
               style={{ marginTop: 15 }}
               keyExtractor={makeKeyExtractor}
               ItemSeparatorComponent={HorizontalSeperator}
@@ -188,20 +172,12 @@ const VerticalSeperator = styled.View`
 
 export default Movies;
 
-// GraphQL을 사용해서 react개발을 하게 되면 Apollo도 아름답고 fetch같은것도 안해줘도 됨
-// 만약 restAPI를 가지고 있으면 보통은 redux을 사용하지만 react query를 사용해도 좋다
-// react query hook을 통해서 fetch데이터에 접근할 수 있도록 해주면서 fetch데이터와 함께 loading state도 알려준다
+// useQuery hook에서 얻을 수 있는 정보들 중에서 refetch가 있는데 쿼리를 다시 불러오는 역할을 한다
+// isRefetching은 쿼리가 refetch되는지 확인하는데 필요한 boolean
+// 이처럼 3개의 query를 refetch하는 방법도 있지만 QueryClient를 통해 cache에 접근하는 방법도 있다
+// QueryClient는 모든 쿼리들을 통제할 수 있기 때문에 쿼리를 삭제할 수도 있고 취소할 수도 있고 refetch할 수도 있다
+// 또한 부분적으로 queryKey에 맞는 쿼리만 refetch하는 옵션도 있다
 
-// react-query를 설치하고 queryClient를 만들어서 QueryClientProvider로 application을 감싸면 된다
-// useQuery hook의 두번째인자에 fetcher(fetch operation)를 사용한다
-// 즉, fetch를 직접 사용하는것이 아니라 fetch를 useQuery hook의 인자로 사용한다
-// useQuery hook은 fetch가 뭘 하던 추적해서 우리에게 data와 error가 있는지, 그리고 로딩중인지를 넘겨준다
-
-// react query는 이 데이터가 한번 fetch가 되면 다시는 fetch를 하지 않는 caching을 사용하기 때문에 
-// 이전처럼 movies화면이 마운트될때마다 데이터를 fetch하지 않아도 된다
-// 물론 react native는 화면을 이동할 때 unmount되는게 아니지만 컴포넌트를 떠날때 그 컴포넌트를 unmount를 해주면 데이터 메모리를 줄여줄 수 있다 <Tab.Navigator screenOptions={{unmountOnBlur:true}} />을 해주면 된다
-// state는 해당 컴포넌트가 마운트되었을때만 존재하는데 이런 현상을 막고 data가 chched되길 원한다면 redux나 apollo를 통해 직접 데이터캐싱작업을 해야한다
-// 이처럼 직접 데이터 캐싱작업을 하면 어렵지만 react query를 사용하면 언마운트되었다가 돌아와도 data는 유지된다
-// 어쨌던 이러한 캐싱기능을 위해 useQuery를 사용할때 queryKey를 정해준다
-// 이러한 queryKey를 통해 캐싱된 데이터에 접근을 하거나 변형을 할 수 있는데 이 캐시가 어떤 타입의 데이터인지 알아야 한다
-// 만약 다른컴포넌트에서 동일한 쿼리를 사용했을경우 다시 fetch하지 않는다
+// queryKey는 string도 될 수 있고 array도 될 수도 있다
+// 이것들을 통해 key들에게 category를 만들어주거나 queryKey에 변수를 추가할 수도 있다
+// useQuery() hook에서 refetch를 import하지 않고 queryKey를 카테고리화(=범주화)를 하면 기존의 queryKey "nowPlaying" → ["movies", "nowPlaying"] 이라고 적어서 "nowPlaying" 쿼리를 movies 카테고리에 넣을 수 있다
