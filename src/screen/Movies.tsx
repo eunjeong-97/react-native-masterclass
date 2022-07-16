@@ -1,13 +1,15 @@
 import React from "react";
 import type { NativeStackScreenProps } from "@react-navigation/native-stack";
-import { ActivityIndicator, Dimensions, FlatList } from "react-native";
+import { Dimensions, FlatList } from "react-native";
 import Swiper from "react-native-swiper";
 import styled from "styled-components/native";
 import { useQuery, useQueryClient } from "react-query";
 
+import Loader from "../components/Loader";
 import Slide from "../components/Slide";
 import Movie from "../components/Movie";
 import { IMovieResponse, movies } from "../utils/api";
+import SlideWrap from "../components/SlideWrap";
 
 interface IMovies {
   adult: boolean;
@@ -28,9 +30,10 @@ interface IMovies {
 
 const { height: SCREEN_HEIGHT } = Dimensions.get("window");
 
+// NativeStackScreenProps은 stack navigation의 screen일 때 사용
 const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   const queryClient = useQueryClient();
-  const {isLoading: nowPlayingIsLoading, data:nowPlayingData, isRefetching:nowPlayingIsRefetching} = useQuery<IMovieResponse>(['movies', 'nowPlaying'], movies.nowplaying);
+  const {isLoading: nowPlayingIsLoading, data:nowPlayingData, isRefetching:nowPlayingIsRefetching} = useQuery<IMovieResponse>(['movies', 'nowPlaying'], movies.nowPlaying);
   const {isLoading: trendingIsLoading, data:trendingData, isRefetching:trendingIsRefetching} = useQuery<IMovieResponse>(['movies','trending'], movies.trending);
   const {isLoading: upcomingIsLoading, data:upcomingData, isRefetching:upcomingIsRefetching} = useQuery<IMovieResponse>(['movies','upcoming'], movies.upcoming);
 
@@ -41,44 +44,11 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
     queryClient.refetchQueries(['movies']);
   }
 
-  if(nowPlayingData!==undefined) {
-    // nowPlayingData.results의 속성key값 가져와서 interface만들 때 활용
-    console.log(Object.keys(nowPlayingData.results[0]))
-    // 각각의 속성value값들의 타입을 반환
-    console.log(Object.values(nowPlayingData.results[0]).map(v=>typeof v))
-  }
-
-  // 이러한 item들은 FlatList에서 뽑아왔기 때문에 어떠한 type도 상속받지 못했다
-  // keyExtractor={(item) => } 이런식으로 적어주면 되는데
-  // 이게 type을 상속시켜주기 때문에 만약 길고 완전하게 완성하고 싶다면 이 기능을 다른곳에서 추출해오지 않으면 된다
-  // FlatList에 movie array라고 데이터와 함께 type을 주는데 keyExtractor는 인자로 받은 item이 movieType인걸 알게 된다
-  // 하지만 클린코드를 이루지 못하게 된다
-  // const renderTrendingItem = ({ item }) => (
-  //   <Movie
-  //     posterPath={item.poster_path || ""}
-  //     title={item.original_title}
-  //     voteAverage={item.vote_average}
-  //   />
-  // );
-
-  // const renderCommingItem = ({ item }) => (
-  //   <Movie
-  //     posterPath={item.poster_path || ""}
-  //     title={item.original_title}
-  //     direction="row"
-  //     overview={item.overview}
-  //     wrapperStyle={{ paddingHorizontal: 30 }}
-  //     textWrapSize={60}
-  //     date={item.release_date}
-  //   />
-  // );
-
-  // const makeKeyExtractor = item => item.id + "";
-
   return loading ? (
-    <Loading>
-      <ActivityIndicator />
-    </Loading>
+    // <Loading>
+    //   <ActivityIndicator />
+    // </Loading>
+    <Loader/>
   ) : (
     upcomingData ? 
     <FlatList
@@ -128,7 +98,7 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
             })}
           </Swiper>
           <ListWrap>
-            <ListTitle>Trending Movies</ListTitle>
+            {/* <ListTitle>Trending Movies</ListTitle>
             {trendingData? <FlatList
               horizontal
               data={trendingData.results}
@@ -145,8 +115,8 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
               )}
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{ paddingHorizontal: 30 }}
-            />: null}
-            
+            /> */}
+            {trendingData ? <SlideWrap title='Trending Movies' data={trendingData.results} /> : null }            
           </ListWrap>
           <ListWrap>
             <ListTitle>Comming Soon</ListTitle>
@@ -158,11 +128,11 @@ const Movies: React.FC<NativeStackScreenProps<any, "Movies">> = () => {
   );
 };
 
-const Loading = styled.View`
-  flex: 1;
-  align-items: center;
-  justify-content: center;
-`;
+// const Loading = styled.View`
+//   flex: 1;
+//   align-items: center;
+//   justify-content: center;
+// `;
 
 const ListWrap = styled.View`
   margin-bottom: 40px;
@@ -175,16 +145,8 @@ const ListTitle = styled.Text`
   margin-left: 20px;
 `;
 
-const HorizontalSeperator = styled.View`
-  width: 15px;
-`;
-
 const VerticalSeperator = styled.View`
   height: 15px;
 `;
 
 export default Movies;
-
-// react query를 사용할 때 typescript를 반영하는 방법
-// API의 response type을 react query에 전달한다
-// react query가 그러한 type을 받아서 hook의 데이터에 적용한다
